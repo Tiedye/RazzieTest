@@ -8,7 +8,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "install": "node node_modules/typings/dist/bin.js install && npm run build",
+    "postinstall": "node node_modules/typings/dist/bin.js install && npm run build",
     "build": "node node_modules/typescript/bin/tsc"
   },
   "author": "Daniel Whitney",
