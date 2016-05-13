@@ -3,7 +3,7 @@
 import {MongoClient, Db, Collection} from "mongodb";
 
 import {Racer, Team} from "./schema";
-import {genId, randString, shuffle} from './util';
+import {genId, randString, shuffle, generateRacer} from './util';
 
 let teams:number = 20;
 let racersATeam:number = 20;
@@ -47,10 +47,7 @@ process.on('message', (msg:any) => {
             if (Math.random() < 0.5 && availableIds.length) {
                 updates.push(new Update("remove", null, null, availableIds.pop()));
             } else {
-                let newRacer:Racer = new Racer(
-                    randString(7), randString(7), Math.random() * 10 + 7,
-                    Math.random() * 10, Math.random() * 10, Math.random() * 10, Math.random() * 10,
-                    randString(30), Math.random() > 0.5, `${thisThreadNum}-${genId(Math.random() * accessCount + totalRacers)}`);
+                let newRacer:Racer = generateRacer(`${thisThreadNum}-${genId(Math.random() * accessCount + totalRacers)}`);
                 availableIds.push(newRacer.id);
                 updates.push(new Update("add", newRacer, genId(Math.floor(Math.random() * teams)), null));
             }
@@ -67,10 +64,7 @@ process.on('message', (msg:any) => {
                 if (Math.random() < 0.5 && availableIds.length) {
                     both.push(new Update("remove", null, null, availableIds.pop()));
                 } else {
-                    let newRacer:Racer = new Racer(
-                        randString(7), randString(7), Math.random() * 10 + 7,
-                        Math.random() * 10, Math.random() * 10, Math.random() * 10, Math.random() * 10,
-                        randString(30), Math.random() > 0.5, `${thisThreadNum}-${genId(Math.random() * accessCount + totalRacers)}`);
+                    let newRacer:Racer = generateRacer(`${thisThreadNum}-${genId(Math.random() * accessCount + totalRacers)}`);
                     availableIds.push(newRacer.id);
                     both.push(new Update("add", newRacer, genId(Math.floor(Math.random() * teams)), null));
                 }

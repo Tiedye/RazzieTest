@@ -3,7 +3,7 @@
 import {MongoClient, Db, Collection} from "mongodb";
 
 import {IndependentRacer} from "./schema";
-import {genId, randString, shuffle} from './util';
+import {genId, randString, shuffle, generateIndependentRacer} from './util';
 
 let teams:number = 20;
 let racersATeam:number = 20;
@@ -42,33 +42,32 @@ process.on('message', (msg:any) => {
             availableIds.push(genId(i));
         }
         shuffle(availableIds);
+
         console.log(`Thread ${thisThreadNum}: Create update queue`);
         for (let i = 0; i < accessCount; ++i) {
             if (Math.random() < 0.5 && availableIds.length) {
                 updates.push(new Update("remove", null, availableIds.pop()));
             } else {
-                let newRacer:IndependentRacer = new IndependentRacer(
-                    genId(Math.floor(Math.random() * teams)), randString(7), randString(7), Math.random() * 10 + 7,
-                    Math.random() * 10, Math.random() * 10, Math.random() * 10, Math.random() * 10,
-                    randString(30), Math.random() > 0.5, `${thisThreadNum}-${genId(Math.random() * accessCount + totalRacers)}`);
+                let newRacer:IndependentRacer = generateIndependentRacer(genId(Math.floor(Math.random() * teams)),
+                    `${thisThreadNum}-${genId(Math.random() * accessCount + totalRacers)}`);
                 availableIds.push(newRacer.id);
                 updates.push(new Update("add", newRacer, null));
             }
         }
+
         console.log(`Thread ${thisThreadNum}: Create query queue`);
         for (let i = 0; i < accessCount; ++i) {
             queries.push(availableIds[Math.floor(availableIds.length * Math.random())]);
         }
+
         console.log(`Thread ${thisThreadNum}: Create hybrid queue`);
         for (let i = 0; i < accessCount; ++i) {
             if (Math.random() < updateQueryRatio / (updateQueryRatio + 1)) {
                 if (Math.random() < 0.5 && availableIds.length) {
                     both.push(new Update("remove", null, availableIds.pop()));
                 } else {
-                    let newRacer:IndependentRacer = new IndependentRacer(
-                        genId(Math.floor(Math.random() * teams)), randString(7), randString(7), Math.random() * 10 + 7,
-                        Math.random() * 10, Math.random() * 10, Math.random() * 10, Math.random() * 10,
-                        randString(30), Math.random() > 0.5, `${thisThreadNum}-${genId(Math.random() * accessCount + totalRacers)}`);
+                    let newRacer:IndependentRacer = generateIndependentRacer(genId(Math.floor(Math.random() * teams)),
+                        `${thisThreadNum}-${genId(Math.random() * accessCount + totalRacers)}`);
                     availableIds.push(newRacer.id);
                     both.push(new Update("add", newRacer, null));
                 }

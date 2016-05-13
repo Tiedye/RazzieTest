@@ -1,4 +1,5 @@
 "use strict";
+import {IndependentRacer, Racer} from './schema';
 
 export function randString(len:number):string {
     return Buffer.from([...(function *() {
@@ -21,4 +22,19 @@ export function shuffle<T>(array:Array<T>):Array<T>{
         array[swap] = item;
     }
     return array;
+}
+
+export function generateIndependentRacer (team:string, id:string):IndependentRacer {
+    return new IndependentRacer(
+        team, randString(7), randString(7), Math.random() * 10 + 7,
+        Math.random() * 10, Math.random() * 10, Math.random() * 10, Math.random() * 10,
+        randString(30), Math.random() > 0.5, id);
+
+}
+
+export function generateRacer(id:string):Racer {
+    return new Racer(
+        randString(7), randString(7), Math.random() * 10 + 7,
+        Math.random() * 10, Math.random() * 10, Math.random() * 10, Math.random() * 10,
+        randString(30), Math.random() > 0.5, id);
 }

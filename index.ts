@@ -2,7 +2,7 @@
 
 import {fork, ChildProcess} from 'child_process';
 import {IndependentRacer, Racer, Team} from './schema';
-import {randString, genId} from './util';
+import {randString, genId, generateRacer, generateIndependentRacer} from './util';
 import {MongoClient, Db, Collection} from 'mongodb';
 let async = require("async");
 
@@ -41,6 +41,7 @@ process.argv.slice(2).map((arg:string) => {
         console.log("  --mode          storage model (1 -> records per racer or 2 -> record per team)");
         console.log("  --ratio         ratio of updates to queries during the test");
         console.log("  --help          shows this message");
+        process.exit();
     } else {
         console.log("Invalid Option: " + arg);
     }
@@ -60,38 +61,35 @@ MongoClient.connect('mongodb://localhost:27017/' + (mode == DBMode.RacerTable ? 
         console.time('Create DB');
         let completedCreation:Promise<any>;
         if (mode == DBMode.RacerTable) {
+            
             let toAdd:Array<IndependentRacer> = new Array<IndependentRacer>();
             for (let team = 0; team < teams; ++team) {
-                // generate random team id
+                // generate team id
                 let teamId = genId(team);
                 for (let racer = 0; racer < racersATeam; ++racer) {
-                    // generate random racer
-                    toAdd.push(new IndependentRacer(
-                        teamId, randString(7), randString(7), Math.random() * 10 + 7,
-                        Math.random() * 10, Math.random() * 10, Math.random() * 10, Math.random() * 10,
-                        randString(30), Math.random() > 0.5, genId(team * racersATeam + racer)));
+                    // generate racer
+                    toAdd.push(generateIndependentRacer(teamId, genId(team * racersATeam + racer)));
                 }
             }
             console.log('Racer Obj Created, Inserting');
             completedCreation = Promise.all([col.insertMany(toAdd), col.createIndex('id')]);
+            
         } else {
+            
             let toAdd:Array<Team> = new Array<Team>();
             for (let team = 0; team < teams; ++team) {
-                // create team, generate random id
+                // create team, generate id
                 let newTeam:Team = new Team(genId(team), []);
                 toAdd.push(newTeam);
                 for (let racer = 0; racer < racersATeam; ++racer) {
                     // add random racers to team
-                    newTeam.racers.push(new Racer(
-                        randString(7), randString(7), Math.random() * 10 + 7,
-                        Math.random() * 10, Math.random() * 10, Math.random() * 10, Math.random() * 10,
-                        randString(30), Math.random() > 0.5, genId(team * racersATeam + racer)));
+                    newTeam.racers.push(generateRacer(genId(team * racersATeam + racer)));
                 }
             }
             console.log('Teams Obj Created, Inserting');
             completedCreation = Promise.all([col.insertMany(toAdd), col.createIndex('racers.id'), col.createIndex('id')]);
         }
-        // once the db has been created, run our tests
+        // once the collection and indices have been created, run our tests
         completedCreation.then(() => {
             console.timeEnd('Create DB');
 
@@ -119,6 +117,7 @@ MongoClient.connect('mongodb://localhost:27017/' + (mode == DBMode.RacerTable ? 
             // run the three tests once after another
             async.series([
                 (callback:(err:Error)=>void) => {
+                    // Wait for all threads to be ready
                     Promise.all(threads.map(thread=>new Promise((resolve, reject)=> {
                         thread.once('message', (msg:string) => msg === 'ready' ? resolve() : reject())
                     }))).then(() => {
