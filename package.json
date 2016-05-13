@@ -4,7 +4,7 @@
   "description": "A little test.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Tiedye/RazzieTest.git"
+    "url": "git+https://git@github.com/Tiedye/RazzieTest.git"
   },
   "main": "index.js",
   "scripts": {
