@@ -1,0 +1,10 @@
+{
+  "name": "razzie-test",
+  "version": false,
+  "dependencies": {},
+  "ambientDependencies": {
+    "async": "registry:dt/async#1.4.2+20160501155344",
+    "mongodb": "registry:dt/mongodb#2.1.0+20160425144419",
+    "node": "registry:dt/node#4.0.0+20160509154515"
+  }
+}

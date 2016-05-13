@@ -1,0 +1,18 @@
+{
+  "name": "razzie-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "install": "node node_modules/typings/dist/typings.js install || npm run build",
+    "build": "node node_modules/typescript/bin/tsc"
+  },
+  "author": "Daniel Whitney",
+  "license": "UNLICENCED",
+  "dependencies": {
+    "async": "^2.0.0-rc.4",
+    "mongodb": "^2.1.18",
+    "typescript": "^1.8.10",
+    "typings": "^0.8.1"
+  }
+}
